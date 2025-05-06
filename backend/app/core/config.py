@@ -10,6 +10,9 @@ class Settings(BaseSettings):
     # Basic application info
     PROJECT_NAME: str = "RosettaSub API"
     API_V1_STR: str = "/api/v1"
+
+    # Environment
+    ENVIRONMENT: str = "development" 
     
     # CORS
     BACKEND_CORS_ORIGINS: list[str] = ["http://localhost:3000"]
