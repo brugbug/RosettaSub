@@ -5,6 +5,7 @@ WORKDIR /app
 # Install system dependencies for ffmpeg
 RUN apt-get update && apt-get install -y \
     ffmpeg \
+    build-essential \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
@@ -17,6 +18,9 @@ COPY . .
 
 # Create upload directory
 RUN mkdir -p uploads
+
+# Download Whisper model weights (pre-cache them in the image)
+RUN python -c "import whisper; whisper.load_model('base')"
 
 # Expose port
 EXPOSE 8000
