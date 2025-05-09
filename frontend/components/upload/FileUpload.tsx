@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import { DownloadButton } from './DownloadButton';
 
 const FileUpload: React.FC = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState('');
+  const [vttFilename, setVttFilename] = useState<string | null>(null);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
@@ -46,8 +48,11 @@ const FileUpload: React.FC = () => {
       
       setMessage('File uploaded successfully!');
       console.log('Response:', response.data);
+
       //  handle the returned subtitles
-      
+      setVttFilename(response.data.vtt_filename);
+      console.log('VTT Filename:', vttFilename);
+
     } catch (error) {
       console.error('Error uploading file:', error);
       setMessage('Error uploading file. Please try again.');
@@ -102,6 +107,12 @@ const FileUpload: React.FC = () => {
             : 'bg-green-50 text-green-700'
         }`}>
           {message}
+        </div>
+      )}
+
+      {vttFilename && (
+        <div className="mt-4">
+          <DownloadButton filename={vttFilename} />
         </div>
       )}
     </div>

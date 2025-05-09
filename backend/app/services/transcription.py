@@ -93,7 +93,7 @@ def generate_vtt_from_transcription(transcription: dict, output_path: Optional[s
         hours = int(seconds // 3600)
         minutes = int((seconds % 3600) // 60)
         secs = seconds % 60
-        return f"{hours:02d}:{minutes:02d}:{secs:06.3f}".replace(".", ",")
+        return f"{hours:02d}:{minutes:02d}:{secs:06.3f}"#.replace(".", ",")
     
     # Write VTT file
     with open(output_path, 'w', encoding='utf-8') as f:
