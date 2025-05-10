@@ -2,13 +2,14 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { DownloadButton } from './DownloadButton';
 
+// FileUpload.tsx, is a React Functional Component that allows users to upload audio files (MP3 or WAV) for transcription
 const FileUpload: React.FC = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState('');
   const [vttFilename, setVttFilename] = useState<string | null>(null);
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {  // event handler for file input
     const files = event.target.files;
     if (files && files.length > 0) {
       setSelectedFile(files[0]);
@@ -16,7 +17,7 @@ const FileUpload: React.FC = () => {
     }
   };
 
-  const handleSubmit = async (event: React.FormEvent) => {
+  const handleSubmit = async (event: React.FormEvent) => {  // event handler for form submission
     event.preventDefault();
     
     if (!selectedFile) {
