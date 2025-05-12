@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import settings
+from app.services.file_cleanup import clear_uploads_directory
 from app.api.routes import router as api_router
 
 # Initialize FastAPI inistance
@@ -30,3 +31,9 @@ def root():
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run("app.main:app", host="0.0.0.0", port=8000, reload=True)
+
+# TEMPORARY: Clear uploads directory on application (Docker) startup
+# This is a temporary solution to ensure that the uploads directory is empty
+@app.on_event("startup")
+async def startup_event():
+    clear_uploads_directory()
