@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { DownloadButton } from './DownloadButton';
+import MediaPlayer from '../player/MediaPlayer';
 
 // FileUpload.tsx, is a React Functional Component that allows users to upload audio files (MP3 or WAV) for transcription
 const FileUpload: React.FC = () => {
@@ -8,12 +9,27 @@ const FileUpload: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState('');
   const [vttFilename, setVttFilename] = useState<string | null>(null);
+  const [mediaUrl, setMediaUrl] = useState<string | null>(null);
+  const [mediaType, setMediaType] = useState<'audio' | 'video'>('audio');
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {  // event handler for file input
     const files = event.target.files;
     if (files && files.length > 0) {
       setSelectedFile(files[0]);
       setMessage('');
+
+      // Create a temporary URL for the selected file
+      const url = URL.createObjectURL(files[0]);
+      setMediaUrl(url);
+
+      // Determine the media type based on the file extensioN
+      const fileType = files[0].type;
+      if (fileType.startsWith('audio/')) {
+        setMediaType('audio');
+      } 
+      else {
+        setMediaType('video');
+      }
     }
   };
 
@@ -26,8 +42,8 @@ const FileUpload: React.FC = () => {
     }
 
     const fileType = selectedFile.type;
-    if (fileType !== 'audio/mpeg' && fileType !== 'audio/wav') {
-      setMessage('Only MP3 or WAV files are allowed');
+    if (!fileType.startsWith('audio/') && !fileType.startsWith('video/')) {
+      setMessage('Only audio (MP3/WAV) or video files are allowed');
       return;
     }
 
@@ -62,6 +78,11 @@ const FileUpload: React.FC = () => {
     }
   };
 
+  // Generate the URL for the VTT file
+  const subtitleUrl = vttFilename
+    ? `${process.env.NEXT_PUBLIC_API_URL}/download/${vttFilename}`
+    : null;
+
   return (
     <div className="w-full max-w-md mx-auto p-6 bg-white rounded-lg shadow-md">
       <h2 className="text-2xl font-bold mb-4">Upload Audio File</h2>
@@ -85,7 +106,7 @@ const FileUpload: React.FC = () => {
               file:text-sm file:font-semibold
               file:bg-blue-50 file:text-blue-700
               hover:file:bg-blue-100"
-            accept=".mp3,.wav"
+            accept="audio/*,video/*"
           />
         </div>
         
@@ -109,6 +130,14 @@ const FileUpload: React.FC = () => {
         }`}>
           {message}
         </div>
+      )}
+
+      {mediaUrl && (
+        <MediaPlayer
+          mediaUrl={mediaUrl}
+          subtitleUrl={subtitleUrl}
+          mediaType={mediaType}
+        />
       )}
 
       {vttFilename && (

@@ -3,6 +3,7 @@ import tempfile
 import whisper
 import ffmpeg
 import time
+import subprocess
 from pathlib import Path
 from typing import Optional, Tuple, List
 from app.core.config import settings
@@ -61,14 +62,37 @@ def extract_audio_from_video(video_path: str) -> str:
     # Create output filename
     audio_path = os.path.splitext(video_path)[0] + ".mp3"
     
-    # Run ffmpeg to extract audio from the video
-    (
-        ffmpeg
-        .input(video_path)                                # load input video file
-        .output(audio_path, acodec='libmp3lame', options={'q:a':2})   # specify output path, codec, and quality (q:a=2 means high quality)
-        .run(quiet=True, overwrite_output=True)           # run ffmpeg command quietly and overwrite if file exists  
-    )
+    try:
+        # Try the subprocess approach which is more reliable
+        cmd = [
+            'ffmpeg',
+            '-i', video_path,
+            '-q:a', '2',
+            '-map', 'a',
+            '-c:a', 'libmp3lame',
+            audio_path
+        ]
+        
+        subprocess.run(cmd, check=True, capture_output=True)
+        
+        # If subprocess succeeds but file wasn't created, fall back to ffmpeg-python
+        if not os.path.exists(audio_path):
+            # Run ffmpeg to extract audio from the video using the ffmpeg-python library
+            (
+                ffmpeg
+                .input(video_path)
+                .output(audio_path, acodec='libmp3lame', q='2')
+                .run(quiet=True, overwrite_output=True)
+            )
+    except subprocess.CalledProcessError as e:
+        raise Exception(f"Error extracting audio with ffmpeg: {e.stderr.decode() if e.stderr else str(e)}")
+    except Exception as e:
+        raise Exception(f"Error extracting audio: {str(e)}")
 
+    # Verify the file was created
+    if not os.path.exists(audio_path):
+        raise Exception("Audio extraction failed: output file was not created")
+        
     # Return the .mp3 audio file
     return audio_path
 
