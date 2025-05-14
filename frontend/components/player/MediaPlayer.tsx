@@ -25,6 +25,7 @@ const MediaPlayer: React.FC<MediaPlayerProps> = ({ mediaUrl, subtitleUrl, mediaT
             ref={mediaRef as React.RefObject<HTMLVideoElement>}
             controls
             className="w-full rounded"
+            crossOrigin="anonymous"
           >
             <source src={mediaUrl} />
             {subtitleUrl && <track 
@@ -41,6 +42,7 @@ const MediaPlayer: React.FC<MediaPlayerProps> = ({ mediaUrl, subtitleUrl, mediaT
               ref={mediaRef as React.RefObject<HTMLAudioElement>}
               controls
               className="w-full mb-4"
+              crossOrigin="anonymous"
             >
               <source src={mediaUrl} />
               {subtitleUrl && <track 

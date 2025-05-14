@@ -63,7 +63,8 @@ def extract_audio_from_video(video_path: str) -> str:
     audio_path = os.path.splitext(video_path)[0] + ".mp3"
     
     try:
-        # Try the subprocess approach which is more reliable
+        print("DEBUG: Using FFmpeg through subprocess to extract audio")
+        # Use subprocess to call FFmpeg using cmd line args for audio extraction
         cmd = [
             'ffmpeg',
             '-i', video_path,
@@ -77,6 +78,7 @@ def extract_audio_from_video(video_path: str) -> str:
         
         # If subprocess succeeds but file wasn't created, fall back to ffmpeg-python
         if not os.path.exists(audio_path):
+            print("DEBUG: Subprocess didn't work; Using FFmpeg through ffmpeg-python to extract audio")
             # Run ffmpeg to extract audio from the video using the ffmpeg-python library
             (
                 ffmpeg

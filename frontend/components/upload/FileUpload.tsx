@@ -22,7 +22,7 @@ const FileUpload: React.FC = () => {
       const url = URL.createObjectURL(files[0]);
       setMediaUrl(url);
 
-      // Determine the media type based on the file extensioN
+      // Determine the media type based on the file extension
       const fileType = files[0].type;
       if (fileType.startsWith('audio/')) {
         setMediaType('audio');
@@ -41,6 +41,7 @@ const FileUpload: React.FC = () => {
       return;
     }
 
+    // Validate file type
     const fileType = selectedFile.type;
     if (!fileType.startsWith('audio/') && !fileType.startsWith('video/')) {
       setMessage('Only audio (MP3/WAV) or video files are allowed');
@@ -49,6 +50,7 @@ const FileUpload: React.FC = () => {
 
     setIsLoading(true);
     
+    // Make a post request to /transcribe API with the selected file
     try {
       const formData = new FormData();
       formData.append('file', selectedFile);
@@ -63,10 +65,9 @@ const FileUpload: React.FC = () => {
         }
       );
       
+      // Handle the returned subtitles
       setMessage('File uploaded successfully!');
       console.log('Response:', response.data);
-
-      //  handle the returned subtitles
       setVttFilename(response.data.vtt_filename);
       console.log('VTT Filename:', vttFilename);
 
@@ -83,6 +84,9 @@ const FileUpload: React.FC = () => {
     ? `${process.env.NEXT_PUBLIC_API_URL}/download/${vttFilename}`
     : null;
 
+  console.log('Subtitle URL:', subtitleUrl);
+
+  // Render the component  
   return (
     <div className="w-full max-w-md mx-auto p-6 bg-white rounded-lg shadow-md">
       <h2 className="text-2xl font-bold mb-4">Upload Audio File</h2>
@@ -132,7 +136,7 @@ const FileUpload: React.FC = () => {
         </div>
       )}
 
-      {mediaUrl && (
+      {mediaUrl && subtitleUrl && (
         <MediaPlayer
           mediaUrl={mediaUrl}
           subtitleUrl={subtitleUrl}
