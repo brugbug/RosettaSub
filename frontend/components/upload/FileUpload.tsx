@@ -22,6 +22,8 @@ const FileUpload: React.FC = () => {
       const url = URL.createObjectURL(files[0]);
       setMediaUrl(url);
 
+      setVttFilename(null);  // Reset the VTT filename when a new file is selected
+
       // Determine the media type based on the file extension
       const fileType = files[0].type;
       if (fileType.startsWith('audio/')) {
