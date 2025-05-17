@@ -66,15 +66,15 @@ def extract_audio_from_video(video_path: str) -> str:
         print("DEBUG: Using FFmpeg through subprocess to extract audio")
         # Use subprocess to call FFmpeg using cmd line args for audio extraction
         cmd = [
-            'ffmpeg',
-            '-i', video_path,
-            '-q:a', '2',
-            '-map', 'a',
-            '-c:a', 'libmp3lame',
-            audio_path
+            'ffmpeg', 
+            '-i', video_path,       # input video file
+            '-q:a', '2',            # audio quality
+            '-map', 'a',            # map audio stream
+            '-c:a', 'libmp3lame',   # audio codec
+            audio_path              # output audio file
         ]
         
-        subprocess.run(cmd, check=True, capture_output=True)
+        subprocess.run(cmd, check=True, capture_output=True, text=True)
         
         # If subprocess succeeds but file wasn't created, fall back to ffmpeg-python
         if not os.path.exists(audio_path):
@@ -97,6 +97,55 @@ def extract_audio_from_video(video_path: str) -> str:
         
     # Return the .mp3 audio file
     return audio_path
+
+def create_video_from_audio(audio_path: str) -> str:
+    """
+    Create video from an audio file using ffmpeg.
+    
+    Args:
+        audio_path: Path to the audio file
+        
+    Returns:
+        Path to the generated video file
+    """
+    # Create output filename
+    video_path = os.path.splitext(audio_path)[0] + ".mp4"
+
+    try:
+        print("DEBUG: Using FFmpeg through subprocess to create video")
+        # Use subprocess to call FFmpeg using cmd line args for video creation
+        cmd = [
+            'ffmpeg',
+            '-i', audio_path,                       # input audio file
+            '-f', 'lavfi',                          # input format for filter
+            '-i', 'color=c=black:s=1280x720:r=24',  # generate black background
+            '-shortest',                            # end when shortest input ends
+            '-c:v', 'libx264',                      # video codec
+            '-c:a', 'aac',                          # audio codec
+            '-pix_fmt', 'yuv420p',                  # pixel format for compatibility
+            '-y',                                   # overwrite output if exists
+            video_path                              # output video file
+        ]
+
+        subprocess.run(cmd, check=True, capture_output=True, text=True)
+        
+    except subprocess.CalledProcessError as e:
+        print("FFmpeg subprocess failed")
+        print("Return code:", e.returncode)
+        print("stdout:", e.stdout.decode() if e.stdout else "No stdout")
+        print("stderr:", e.stderr.decode() if e.stderr else "No stderr")
+        raise Exception(f"Error creating video with ffmpeg: {e.stderr.decode() if e.stderr else str(e)}")
+    except Exception as e:
+        raise Exception(f"Error creating video: {str(e)}")
+
+    # Verify the file was created
+    if not os.path.exists(video_path):
+        raise Exception("Video creation failed: output file was not created")
+
+    print("DEBUG: Video created successfully:", video_path)
+
+    # Return the .mp4 video file
+    return video_path
 
 def generate_vtt_from_transcription(transcription: dict, output_path: Optional[str] = None) -> str:
     """
@@ -156,7 +205,7 @@ def generate_vtt_from_transcription(transcription: dict, output_path: Optional[s
     # Return the path to the generated VTT file
     return output_path
 
-def process_media_file(file_path: str, use_api: bool = False) -> str:
+def process_media_file(file_path: str, use_api: bool = False) -> tuple[str, str]:
     """
     Process a media file to generate subtitles.
     
@@ -168,15 +217,22 @@ def process_media_file(file_path: str, use_api: bool = False) -> str:
         Tuple of (transcription_result, vtt_file_path)
     """
     
-    # Determine if it's a video file that needs audio extraction
+    # Determine if it's a video file that needs audio extraction or an audio file that needs video creation
     file_ext = os.path.splitext(file_path)[1].lower()
     is_video = file_ext in ['.mp4', '.mov', '.avi', '.mkv']
+    is_audio = file_ext in ['.mp3', '.wav', '.flac', '.aac']
 
     # Extract audio if it's a video file
-    audio_path = file_path
     if is_video:
+        video_path = file_path
         audio_path = extract_audio_from_video(file_path)
-    
+    # Create video if it's an audio file
+    elif is_audio:
+        video_path = create_video_from_audio(file_path)
+        audio_path = file_path
+    else:
+        raise ValueError("Unsupported file type. Only MP3, WAV, MP4, or MOV files are supported.")
+
     # Transcribe the audio
     if use_api:
         print("OpenAI API not ready yet...")
@@ -187,8 +243,10 @@ def process_media_file(file_path: str, use_api: bool = False) -> str:
     # Generate VTT subtitles
     vtt_path = generate_vtt_from_transcription(transcription)
     
-    # Clean up extracted audio file if it was created from video
-    if is_video and audio_path != file_path:
-        os.remove(audio_path)
+    # Delete the audio file (since we only want the video and VTT file)
+    os.remove(audio_path)
+
+    # print("DEBUG: transcription.py: vtt_path:", vtt_path, "video_path:", video_path)
     
-    return vtt_path
+    # Return the paths to the VTT file and video file
+    return vtt_path, video_path

@@ -7,10 +7,9 @@ import MediaPlayer from '../player/MediaPlayer';
 const FileUpload: React.FC = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [message, setMessage] = useState('');
+  const [message, setMessage] = useState('');  
+  const [mediaFilename, setMediaFilename] = useState<string | null>(null);
   const [vttFilename, setVttFilename] = useState<string | null>(null);
-  const [mediaUrl, setMediaUrl] = useState<string | null>(null);
-  const [mediaType, setMediaType] = useState<'audio' | 'video'>('audio');
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {  // event handler for file input
     const files = event.target.files;
@@ -18,20 +17,8 @@ const FileUpload: React.FC = () => {
       setSelectedFile(files[0]);
       setMessage('');
 
-      // Create a temporary URL for the selected file
-      const url = URL.createObjectURL(files[0]);
-      setMediaUrl(url);
-
-      setVttFilename(null);  // Reset the VTT filename when a new file is selected
-
-      // Determine the media type based on the file extension
-      const fileType = files[0].type;
-      if (fileType.startsWith('audio/')) {
-        setMediaType('audio');
-      } 
-      else {
-        setMediaType('video');
-      }
+      // setMediaFilename(null);  // Reset the media filename when a new file is selected
+      // setVttFilename(null);    // Reset the VTT filename when a new file is selected
     }
   };
 
@@ -69,17 +56,24 @@ const FileUpload: React.FC = () => {
       
       // Handle the returned subtitles
       setMessage('File uploaded successfully!');
-      console.log('Response:', response.data);
+      setMediaFilename(response.data.video_filename);
       setVttFilename(response.data.vtt_filename);
-      console.log('VTT Filename:', vttFilename);
+      console.log('Response:', response.data, 
+        '\nVTT Filename:', vttFilename, 
+        '\nMedia Filename:', mediaFilename);
 
     } catch (error) {
-      console.error('Error uploading file:', error);
       setMessage('Error uploading file. Please try again.');
+      console.error('Error uploading file:', error);
     } finally {
       setIsLoading(false);
     }
   };
+
+  // Generate the URL for the media file
+  const mediaUrl = mediaFilename
+    ? `${process.env.NEXT_PUBLIC_API_URL}/video/${mediaFilename}`
+    : null;
 
   // Generate the URL for the VTT file
   const subtitleUrl = vttFilename
@@ -87,6 +81,7 @@ const FileUpload: React.FC = () => {
     : null;
 
   console.log('Subtitle URL:', subtitleUrl);
+  console.log('Media URL:', mediaUrl);
 
   // Render the component  
   return (
@@ -142,7 +137,6 @@ const FileUpload: React.FC = () => {
         <MediaPlayer
           mediaUrl={mediaUrl}
           subtitleUrl={subtitleUrl}
-          mediaType={mediaType}
         />
       )}
 
