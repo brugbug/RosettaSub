@@ -44,21 +44,21 @@ async def transcribe_audio(
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error saving file: {str(e)}")
 
-    # Process the media file to transcribe VTT file for subtitles, and get path to video file
+    # Process the media file to transcribe VTT file for subtitles, and get path to media file
     try:
-        vtt_file_path, video_file_path = process_media_file(file_path, use_api)
+        vtt_file_path, media_file_path = process_media_file(file_path, use_api)
 
         # Get the filenames only (without the directory path)
         vtt_filename = os.path.basename(vtt_file_path)
-        video_filename = os.path.basename(video_file_path)
+        media_filename = os.path.basename(media_file_path)
 
-        print("DEBUG: routes.py: vtt_file_path:", vtt_file_path, "video_file_path:", video_file_path)
-        print("DEBUG: routes.py: vtt_filename:", vtt_filename, "video_filename:", video_filename)
+        print("DEBUG: routes.py: vtt_file_path:", vtt_file_path, "media_file_path:", media_file_path)
+        print("DEBUG: routes.py: vtt_filename:", vtt_filename, "media_filename:", media_filename)
         
         return {
             "message": "Transcription processed successfully",
-            "video_file_path": video_file_path,
-            "video_filename": video_filename,
+            "media_file_path": media_file_path,
+            "media_filename": media_filename,
             "vtt_file_path": vtt_file_path,
             "vtt_filename": vtt_filename,
         }
@@ -70,31 +70,31 @@ async def transcribe_audio(
             os.remove(file_path)
         raise HTTPException(status_code=500, detail=f"Transcription error: {str(e)}")   # Error message
     
-@router.get("/video/{video_filename}")    # /api/v1/video/{video_filename}
-async def download_video(video_filename: str):
+@router.get("/media/{media_filename}")    # /api/v1/media/{media_filename}
+async def download_media(media_filename: str):
     """
-    Endpoint to download the video file.
+    Endpoint to download the media file.
     
     Args:
-        video_filename: The name of the video file to download
+        media_filename: The name of the media file to download
     
     Returns:
-        The video file as a downloadable response
+        The media file as a downloadable response
     """
     
-    # Construct the full path to the video file
-    video_file_path = os.path.join(settings.UPLOAD_DIR, video_filename)
+    # Construct the full path to the media file
+    media_file_path = os.path.join(settings.UPLOAD_DIR, media_filename)
     
     # Check if the file exists
-    if not os.path.exists(video_file_path):
-        raise HTTPException(status_code=404, detail="Video file not found")
+    if not os.path.exists(media_file_path):
+        raise HTTPException(status_code=404, detail="Media file not found")
     
     # Dynamically set the media type based on the file extension
-    media_type, _ = mimetypes.guess_type(video_file_path)
+    media_type, _ = mimetypes.guess_type(media_file_path)
     if media_type is None:
         media_type = "application/octet-stream" # Fallback to binary if type cannot be guessed
     
-    return FileResponse(path=video_file_path, media_type=media_type, filename=video_filename)
+    return FileResponse(path=media_file_path, media_type=media_type, filename=media_filename)
 
 @router.get("/download/{vtt_filename}")    # /api/v1/download/{vtt_filename}
 async def download_vtt(vtt_filename: str):
