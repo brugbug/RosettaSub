@@ -33,7 +33,7 @@ const FileUpload: React.FC = () => {
     // Validate file type
     const fileType = selectedFile.type;
     if (!fileType.startsWith('audio/') && !fileType.startsWith('video/')) {
-      setMessage('Only audio (MP3/WAV) or video files are allowed');
+      setMessage('Only audio or video files are allowed');
       return;
     }
 
@@ -56,7 +56,7 @@ const FileUpload: React.FC = () => {
       
       // Handle the returned subtitles
       setMessage('File uploaded successfully!');
-      setMediaFilename(response.data.video_filename);
+      setMediaFilename(response.data.media_filename);
       setVttFilename(response.data.vtt_filename);
       console.log('Response:', response.data, 
         '\nVTT Filename:', vttFilename, 
@@ -72,7 +72,7 @@ const FileUpload: React.FC = () => {
 
   // Generate the URL for the media file
   const mediaUrl = mediaFilename
-    ? `${process.env.NEXT_PUBLIC_API_URL}/video/${mediaFilename}`
+    ? `${process.env.NEXT_PUBLIC_API_URL}/media/${mediaFilename}`
     : null;
 
   // Generate the URL for the VTT file

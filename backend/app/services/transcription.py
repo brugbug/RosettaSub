@@ -217,18 +217,15 @@ def process_media_file(file_path: str, use_api: bool = False) -> tuple[str, str]
         Tuple of (transcription_result, vtt_file_path)
     """
     
-    # Determine if it's a video file that needs audio extraction or an audio file that needs video creation
+    # Determine if it's a video file that needs audio extraction or an audio file that does not
     file_ext = os.path.splitext(file_path)[1].lower()
     is_video = file_ext in ['.mp4', '.mov', '.avi', '.mkv']
     is_audio = file_ext in ['.mp3', '.wav', '.flac', '.aac']
 
     # Extract audio if it's a video file
     if is_video:
-        video_path = file_path
         audio_path = extract_audio_from_video(file_path)
-    # Create video if it's an audio file
     elif is_audio:
-        video_path = create_video_from_audio(file_path)
         audio_path = file_path
     else:
         raise ValueError("Unsupported file type. Only MP3, WAV, MP4, or MOV files are supported.")
@@ -242,11 +239,8 @@ def process_media_file(file_path: str, use_api: bool = False) -> tuple[str, str]
 
     # Generate VTT subtitles
     vtt_path = generate_vtt_from_transcription(transcription)
-    
-    # Delete the audio file (since we only want the video and VTT file)
-    os.remove(audio_path)
 
-    # print("DEBUG: transcription.py: vtt_path:", vtt_path, "video_path:", video_path)
+    # print("DEBUG: transcription.py: vtt_path:", vtt_path, "file_path:", file_path)
     
-    # Return the paths to the VTT file and video file
-    return vtt_path, video_path
+    # Return the paths to the VTT file and media file
+    return vtt_path, file_path
