@@ -58,3 +58,4 @@ coverage/
 # Media files users might upload during development
 uploads/
 media/
+/backend/venv
