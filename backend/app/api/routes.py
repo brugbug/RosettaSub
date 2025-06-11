@@ -118,9 +118,61 @@ async def download_vtt(vtt_filename: str):
     return FileResponse(path=vtt_file_path, media_type="text/vtt", filename=vtt_filename) # Return the file as a response
 
 @router.post("/translate/")     # /api/v1/translate
-async def translate_subtitles():
+async def translate_subtitles(
+    file: Optional[UploadFile] = File(None),      # File to be translated (optional)
+    filename: Optional[str] = Form(None),         # Name of the file (optional)
+    source_language: Optional[str] = Form(None),  # Source language of the subtitles (optional)
+    target_language: str = Form(...),  # Target language for translation (required)
+):
     """
     Endpoint to translate subtitles.
-    This is a placeholder that will be expanded in Iteration 3.
+    
+    Args:
+        file: The VTT file to translate (optional, if filename is provided)
+        filename: Name of the VTT file to translate (optional, if file is provided)
+        source_language: Source language of the subtitles (optional)
+        target_language: Target language for translation (required)
+
+    Returns:
+        JSON with translation info and translated VTT file path
     """
-    return {"message": "Translation endpoint placeholder"}
+
+    # Validate file type
+    if file and file.content_type not in ["text/vtt"]:
+        raise HTTPException(status_code=400, detail="Only VTT files are supported")
+    
+    # Ensure at least one input is provided
+    if not file and not filename:
+        raise HTTPException(status_code=400, detail="Either 'file' or 'filename' must be provided.")
+    
+    # If the file is provided (file does not exist on the server)
+    if file:
+        unique_filename = f"{uuid.uuid4()}.vtt" # generate a unique filename for the uploaded file
+        file_path = os.path.join(settings.UPLOAD_DIR, unique_filename)
+        try:
+            with open(file_path, "wb") as buffer:
+                content = await file.read()
+                buffer.write(content)
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Error saving file: {str(e)}")
+    # If the filename is provided (file exists on the server)
+    elif filename:
+        file_path = os.path.join(settings.UPLOAD_DIR, filename) # use the existing file
+
+    # Translate the media file from source (if provided) to target language
+    try:
+        # Placeholder for translation logic
+        if source_language is None:
+            source_language = "auto"  # Default to auto-detect if not provided
+
+        translated_file_path = translate_subtitles(file_path, source_language, target_language)
+
+        print("DEBUG: routes.py: translated_file_path:", translated_file_path)
+
+        return {"message": "Translation endpoint placeholder"}  
+    
+    except Exception as e:
+        # Clean up the uploaded file if there was an error during processing
+        if file and os.path.exists(file_path):
+            os.remove(file_path)
+        raise HTTPException(status_code=500, detail=f"Translation error: {str(e)}")

@@ -11,19 +11,19 @@ const FileUpload: React.FC = () => {
   const [message, setMessage] = useState('');  
   const [mediaFilename, setMediaFilename] = useState<string | null>(null);
   const [vttFilename, setVttFilename] = useState<string | null>(null);
+  const [translatedVttFilename, setTranslatedVttFilename] = useState<string | null>(null);
+  const [translateFrom, setTranslateFrom] = useState<string>('');
+  const [translateTo, setTranslateTo] = useState<string>('');
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {  // event handler for file input
     const files = event.target.files;
     if (files && files.length > 0) {
       setSelectedFile(files[0]);
       setMessage('');
-
-      // setMediaFilename(null);  // Reset the media filename when a new file is selected
-      // setVttFilename(null);    // Reset the VTT filename when a new file is selected
     }
   };
 
-  const handleSubmit = async (event: React.FormEvent) => {  // event handler for form submission
+  const handleTranscriptionSubmit = async (event: React.FormEvent) => {  // event handler for form submission
     event.preventDefault();
     
     if (!selectedFile) {
@@ -71,6 +71,23 @@ const FileUpload: React.FC = () => {
     }
   };
 
+  const handleTranslationSubmit = () => { // event handler for translation submission
+    console.log('Translation settings:', {
+      translateFrom,
+      translateTo,
+      vttFilename
+    });
+    
+    // Here you can add your translation API call
+    // Example:
+    // const translationData = {
+    //   vttFilename,
+    //   sourceLanguage: translateFrom,
+    //   targetLanguage: translateTo
+    // };
+    // Call your translation API with translationData
+  };
+
   // Generate the URL for the media file
   const mediaUrl = mediaFilename
     ? `${process.env.NEXT_PUBLIC_API_URL}/media/${mediaFilename}`
@@ -79,6 +96,11 @@ const FileUpload: React.FC = () => {
   // Generate the URL for the VTT file
   const subtitleUrl = vttFilename
     ? `${process.env.NEXT_PUBLIC_API_URL}/download/${vttFilename}`
+    : null;
+
+  // Generate the URL for the translated VTT file
+  const translatedSubtitleUrl = translatedVttFilename
+    ? `${process.env.NEXT_PUBLIC_API_URL}/download/${translatedVttFilename}`
     : null;
 
   console.log('Subtitle URL:', subtitleUrl);
@@ -90,7 +112,7 @@ const FileUpload: React.FC = () => {
       <div className="w-full max-w-md mx-auto p-6 bg-white rounded-lg shadow-md">
         <h2 className="text-2xl font-bold mb-4">Upload Audio File</h2>
         
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleTranscriptionSubmit}>
           <div className="mb-4">
             <label 
               htmlFor="file-upload" 
@@ -153,12 +175,31 @@ const FileUpload: React.FC = () => {
           <h2 className="text-2xl font-bold mb-4">Subtitle Translation</h2>
           <div className="flex flex-row gap-4">
             <div className="flex-1">
-              <LanguageSelectionForm label={"Translate From: "} />
+              <LanguageSelectionForm 
+                label="Translate From: "
+                detect={true} 
+                value={translateFrom}
+                onValueChange={setTranslateFrom} 
+              />
             </div>
             <div className="flex-1">
-              <LanguageSelectionForm label={"Translate To: "} />
+              <LanguageSelectionForm 
+                label="Translate To: "
+                value={translateTo}
+                onValueChange={setTranslateTo} 
+              />
             </div>
           </div>
+          <button
+            onClick={handleTranslationSubmit}
+            disabled={!translateFrom || !translateTo}
+            className={`w-full mt-4 py-2 px-4 rounded-md text-white font-medium
+              ${!translateFrom || !translateTo 
+                ? 'bg-gray-400 cursor-not-allowed' 
+                : 'bg-green-600 hover:bg-green-700'}`}
+          >
+            Translate Subtitles
+          </button>
         </div>
       )}
     </div>

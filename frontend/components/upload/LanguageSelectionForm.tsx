@@ -1,6 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Check, ChevronsUpDown } from "lucide-react"
 import { useForm } from "react-hook-form"
+import { use, useEffect } from "react"
 import { toast } from "sonner"
 import { z } from "zod"
 
@@ -41,6 +42,8 @@ const languages = [
   { label: "Chinese", value: "zh" },
 ] as const
 
+const detectLanguageOption = { label: "Detect Language", value: "detect" }
+
 const FormSchema = z.object({
   language: z.string({
     required_error: "Please select a language.",
@@ -49,12 +52,31 @@ const FormSchema = z.object({
 
 interface LanguageSelectionFormProps {
   label: string
+  value: string
+  onValueChange: (value: string) => void
+  detect?: boolean
 }
 
-export function LanguageSelectionForm({ label }: LanguageSelectionFormProps) {
+export function LanguageSelectionForm({ 
+  label, 
+  value, 
+  onValueChange, 
+  detect = false 
+}: LanguageSelectionFormProps) {
+  const availableOptions = detect ? [detectLanguageOption, ...languages] : languages
+  const defaultValue = (detect && !value) ? "detect" : value
+
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
+    defaultValues: {
+      language: defaultValue
+    }
   })
+
+  useEffect(() => { // update form value when prop changes
+    const newValue = (detect && !value) ? "detect" : value
+    form.setValue("language", newValue)
+  }, [value, detect, form])
 
   function onSubmit(data: z.infer<typeof FormSchema>) {
     toast("You submitted the following values", {
@@ -64,6 +86,22 @@ export function LanguageSelectionForm({ label }: LanguageSelectionFormProps) {
         </pre>
       ),
     })
+  }
+
+  const getPlaceholderText = () => {
+    if (detect) {
+      return "Detect Language"
+    }
+    return "Select language"
+  }
+
+  const getSelectedLabel = (fieldValue: string) => {
+    if (!fieldValue) return null
+    
+    const selectedOption = availableOptions.find(
+      (option) => option.value === fieldValue
+    )
+    return selectedOption?.label
   }
 
   return (
@@ -87,10 +125,8 @@ export function LanguageSelectionForm({ label }: LanguageSelectionFormProps) {
                       )}
                     >
                       {field.value
-                        ? languages.find(
-                            (language) => language.value === field.value
-                          )?.label
-                        : "Select language"}
+                        ? getSelectedLabel(field.value)
+                        : getPlaceholderText()}
                       <ChevronsUpDown className="opacity-50" />
                     </Button>
                   </FormControl>
@@ -104,19 +140,20 @@ export function LanguageSelectionForm({ label }: LanguageSelectionFormProps) {
                     <CommandList>
                       <CommandEmpty>No language found.</CommandEmpty>
                       <CommandGroup>
-                        {languages.map((language) => (
+                        {availableOptions.map((option) => (
                           <CommandItem
-                            value={language.label}
-                            key={language.value}
+                            value={option.label}
+                            key={option.value}
                             onSelect={() => {
-                              form.setValue("language", language.value)
+                              form.setValue("language", option.value)
+                              onValueChange(option.value) // callback to FileUpload
                             }}
                           >
-                            {language.label}
+                            {option.label}
                             <Check
                               className={cn(
                                 "ml-auto",
-                                language.value === field.value
+                                option.value === field.value
                                   ? "opacity-100"
                                   : "opacity-0"
                               )}
@@ -128,9 +165,9 @@ export function LanguageSelectionForm({ label }: LanguageSelectionFormProps) {
                   </Command>
                 </PopoverContent>
               </Popover>
-              <FormDescription>
+              {/* <FormDescription>
                 Please select a language.
-              </FormDescription>
+              </FormDescription> */}
               <FormMessage />
             </FormItem>
           )}

@@ -18,8 +18,11 @@ class Settings(BaseSettings):
     BACKEND_CORS_ORIGINS: list[str] = ["http://localhost:3000"]
     
     # OpenAI API Key
-    OPENAI_API_KEY: str = Field(default="", env="OPENAI_API_KEY") # put openai / other LLM api key here!!!
+    OPENAI_API_KEY: str = Field(default="", env="OPENAI_API_KEY") 
     
+    # Gemini API Key
+    GEMINI_API_KEY: str = Field(default="", env="GEMINI_API_KEY") 
+
     # Upload settings
     UPLOAD_DIR: str = "uploads"
     
