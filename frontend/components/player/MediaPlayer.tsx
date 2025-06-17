@@ -118,89 +118,92 @@ const MediaPlayer: React.FC<MediaPlayerProps> = ({ mediaUrl, subtitleUrl, backgr
   }, [mediaUrl, subtitleUrl, isAudio]);
 
   return (
-    <div className="w-full mt-6 rounded-lg overflow-hidden bg-gray-100 shadow">
-      <h3 className="text-lg font-semibold px-4 py-2 bg-blue-50">
-        Media Preview with Subtitles
-      </h3>
-      <div className="p-4">
-        {isAudio ? (
-          <div className="space-y-4">
-            {/* Audio Background Area */}
-{/*             
-            <div 
-              className="w-full h-64 rounded flex items-center justify-center relative overflow-hidden"
-              style={{
-                backgroundImage: backgroundImage ? `url(${backgroundImage})` : undefined,
-                backgroundSize: 'cover',
-                backgroundPosition: 'center',
-                backgroundColor: backgroundImage ? undefined : '#1f2937'
-              }}
-            >
-              {!backgroundImage && (
-                <div className="text-white text-6xl">
-                  🎵
-                </div>
-              )}
-              
-              {currentSubtitle && (
-                <div className="absolute bottom-4 left-4 right-4 bg-black bg-opacity-75 text-white p-3 rounded text-center">
-                  <p className="text-lg font-medium leading-relaxed">
-                    {currentSubtitle}
-                  </p>
-                </div>
-              )}
-            </div> 
-*/}
+    // <div className="w-full max-w-md mx-auto p-6 bg-white rounded-lg shadow-md">
+      <div className="w-full mt-6 rounded-lg overflow-hidden bg-gray-100 shadow">
+        <h3 className="text-lg font-semibold px-4 py-2 bg-blue-50">
+          Media Preview with Subtitles
+        </h3>
+        <div className="p-4">
+          {isAudio ? (
+            <div className="space-y-4">
+              {/* Audio Background Area */}
+  {/*             
+              <div 
+                className="w-full h-64 rounded flex items-center justify-center relative overflow-hidden"
+                style={{
+                  backgroundImage: backgroundImage ? `url(${backgroundImage})` : undefined,
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center',
+                  backgroundColor: backgroundImage ? undefined : '#1f2937'
+                }}
+              >
+                {!backgroundImage && (
+                  <div className="text-white text-6xl">
+                    🎵
+                  </div>
+                )}
+                
+                {currentSubtitle && (
+                  <div className="absolute bottom-4 left-4 right-4 bg-black bg-opacity-75 text-white p-3 rounded text-center">
+                    <p className="text-lg font-medium leading-relaxed">
+                      {currentSubtitle}
+                    </p>
+                  </div>
+                )}
+              </div> 
+  */}
 
-            {/* Audio Element */}
-            <audio
-              ref={audioRef}
+              {/* Audio Element */}
+              <audio
+                ref={audioRef}
+                controls
+                className="w-full"
+                crossOrigin="anonymous"
+                preload="metadata"
+                onTimeUpdate={handleTimeUpdate}
+              >
+                <source src={mediaUrl} type="audio/mpeg" />
+                Your browser does not support the audio tag.
+              </audio>
+            </div>
+          ) : (
+            /* Video Element */
+            <video
+              ref={videoRef}
               controls
-              className="w-full"
+              className="w-full rounded"
               crossOrigin="anonymous"
               preload="metadata"
               onTimeUpdate={handleTimeUpdate}
             >
-              <source src={mediaUrl} type="audio/mpeg" />
-              Your browser does not support the audio tag.
-            </audio>
-          </div>
-        ) : (
-          /* Video Element */
-          <video
-            ref={videoRef}
-            controls
-            className="w-full rounded"
-            crossOrigin="anonymous"
-            preload="metadata"
-            onTimeUpdate={handleTimeUpdate}
-          >
-            <source src={mediaUrl} type="video/mp4" />
-            {subtitleUrl && (
-              <track
-                default
-                kind="subtitles"
-                srcLang="en"
-                src={subtitleUrl}
-                label="English"
-              />
-            )}
-            Your browser does not support the video tag.
-          </video>
-        )}
+              <source src={mediaUrl} type="video/mp4" />
+              {subtitleUrl && (
+                <track
+                  default
+                  kind="subtitles"
+                  srcLang="en"
+                  src={subtitleUrl}
+                  label="English"
+                />
+              )}
+              Your browser does not support the video tag.
+            </video>
+          )}
 
 
-        {/* Subtitle Display for Audio (can also show for video as backup) */}
-        {isAudio && currentSubtitle && (
-          <div className="mt-2 p-3 bg-gray-50 rounded border-l-4 border-blue-500">
-            <p className="text-gray-800 text-center font-medium">
-              {currentSubtitle}
-            </p>
-          </div>
-        )}
+          {/* Subtitle Display for Audio (can also show for video as backup) */}
+          {isAudio && currentSubtitle && (
+            <div className="mt-2 p-3 bg-gray-50 rounded border-l-4 border-blue-500">
+              <p className="text-gray-800 text-center font-medium">
+                {currentSubtitle}
+              </p>
+            </div>
+          )}
 
+        </div>
       </div>
-    </div>
+    //</div>
+
   );
 };
 
