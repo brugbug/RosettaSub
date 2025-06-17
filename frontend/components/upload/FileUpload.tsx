@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { DownloadButton } from './DownloadButton';
 import { LanguageSelectionForm } from './LanguageSelectionForm';
 import MediaPlayer from '../player/MediaPlayer';
+import { set } from 'react-hook-form';
 
 // FileUpload.tsx, is a React Functional Component that allows users to upload audio files (MP3 or WAV) for transcription
 const FileUpload: React.FC = () => {
@@ -12,8 +13,15 @@ const FileUpload: React.FC = () => {
   const [mediaFilename, setMediaFilename] = useState<string | null>(null);
   const [vttFilename, setVttFilename] = useState<string | null>(null);
   const [translatedVttFilename, setTranslatedVttFilename] = useState<string | null>(null);
-  const [translateFrom, setTranslateFrom] = useState<string>('');
+  const [translateFrom, setTranslateFrom] = useState<string>('detect');
   const [translateTo, setTranslateTo] = useState<string>('');
+
+  // useEffect to set the default value for translateFrom to 'detect' if not already set
+  useEffect(() => {
+    if (!translateFrom) {
+      setTranslateFrom('detect');
+    }
+  }, []);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {  // event handler for file input
     const files = event.target.files;
@@ -71,21 +79,51 @@ const FileUpload: React.FC = () => {
     }
   };
 
-  const handleTranslationSubmit = () => { // event handler for translation submission
+  const handleTranslationSubmit = async (event: React.FormEvent) => { // event handler for translation submission
+    event.preventDefault();
+
     console.log('Translation settings:', {
       translateFrom,
       translateTo,
       vttFilename
     });
-    
-    // Here you can add your translation API call
-    // Example:
-    // const translationData = {
-    //   vttFilename,
-    //   sourceLanguage: translateFrom,
-    //   targetLanguage: translateTo
-    // };
-    // Call your translation API with translationData
+
+    // Make a post request to /transcribe API with the selected file
+    try {
+      const formData = new FormData();
+      formData.append('source_language', translateFrom);
+      formData.append('target_language', translateTo);
+      formData.append('filename', vttFilename || '');
+
+      setIsLoading(true);
+
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/translate/`, 
+        formData, 
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        }
+      );
+      
+      // Handle the returned subtitles
+      setMessage('File translated successfully!');
+      setTranslatedVttFilename(response.data.translated_vtt_filename);
+      console.log('Response:', response.data, 
+        '\nVTT Filename:', vttFilename, 
+        '\nTranslated VTT Filename:', translatedVttFilename,
+        '\nLink:', translatedSubtitleUrl
+      );
+
+    } catch (error) {
+      setMessage('Error translating file. Please try again.');
+      console.error('Error translating file:', error);
+    } finally {
+      setIsLoading(false);
+      setTranslateFrom('detect'); // Reset translateFrom to 'detect' after translation
+      setTranslateTo(''); // Reset translateTo after translation
+    }
   };
 
   // Generate the URL for the media file
@@ -103,8 +141,15 @@ const FileUpload: React.FC = () => {
     ? `${process.env.NEXT_PUBLIC_API_URL}/download/${translatedVttFilename}`
     : null;
 
-  console.log('Subtitle URL:', subtitleUrl);
-  console.log('Media URL:', mediaUrl);
+  if (mediaUrl) {
+    console.log('Media URL:', mediaUrl);
+  }
+  if (subtitleUrl) {
+    console.log('Subtitle URL:', subtitleUrl);
+  }
+  if (translatedSubtitleUrl) {
+    console.log('Translated Subtitle URL:', translatedSubtitleUrl);
+  }
 
   // Render the component  
   return (
@@ -166,7 +211,10 @@ const FileUpload: React.FC = () => {
 
         {vttFilename && (
           <div className="mt-4">
-            <DownloadButton filename={vttFilename} />
+            <DownloadButton
+              filename={vttFilename}
+              label="Download VTT"
+            />
           </div>
         )}
       </div>
@@ -190,16 +238,26 @@ const FileUpload: React.FC = () => {
               />
             </div>
           </div>
+
           <button
             onClick={handleTranslationSubmit}
-            disabled={!translateFrom || !translateTo}
+            disabled={isLoading || !translateFrom || !translateTo}
             className={`w-full mt-4 py-2 px-4 rounded-md text-white font-medium
-              ${!translateFrom || !translateTo 
+              ${isLoading || !translateFrom || !translateTo 
                 ? 'bg-gray-400 cursor-not-allowed' 
                 : 'bg-green-600 hover:bg-green-700'}`}
           >
-            Translate Subtitles
+            {isLoading ? 'Processing...' : 'Translate'}
           </button>
+
+          {translatedVttFilename && (
+            <div className="mt-4">
+              <DownloadButton 
+                filename={translatedVttFilename}
+                label="Download Translated VTT"
+              />
+            </div>
+          )}
         </div>
       )}
     </div>
