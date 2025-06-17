@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { toast } from 'sonner';
+import { motion, AnimatePresence } from 'framer-motion';
 import MediaPlayer from '../player/MediaPlayer';
 import { UploadForm } from './UploadForm';
 import { TranslationForm } from './TranslationForm';
@@ -85,7 +86,8 @@ const FileUpload: React.FC = () => {
 
   const handleTranslationSubmit = async (event: React.FormEvent) => { // event handler for translation submission
     event.preventDefault();
-
+    setTranslatedVttFilename(null); // reset translatedVttFilename before translation
+    
     // Make a post request to /transcribe API with the selected file
     try {
       const formData = new FormData();
@@ -126,41 +128,59 @@ const FileUpload: React.FC = () => {
 
   // Render the component  
   return (
-    <div className="w-full max-w-md mx-auto p-6 bg-white rounded-lg shadow-md">
-      <UploadForm
-        isLoading={isLoading}
-        selectedFile={selectedFile}
-        handleFileChange={handleFileChange}
-        handleSubmit={handleTranscriptionSubmit}
-      />
-
-      {mediaUrl && subtitleUrl && (
-        <MediaPlayer mediaUrl={mediaUrl} subtitleUrl={subtitleUrl} />
-      )}
-
-      {vttFilename && (
-        <div className="mt-4 max-w-md mx-auto">
-          <DownloadButton filename={vttFilename} label="Download VTT" />
-        </div>
-      )}
-
-      {subtitleUrl && (
-        <TranslationForm
+    <div className="w-full max-w-7xl mx-auto flex flex-col md:flex-row gap-6 transition-all duration-500 p-6 bg-lime-500/50 rounded-lg shadow-md">
+      {/* LEFT COLUMN */}
+      <div className="w-full md:w-1/2 max-w-md mx-auto p-6 bg-lime-500/80 rounded-lg shadow-md">
+        <UploadForm
           isLoading={isLoading}
-          translateFrom={translateFrom}
-          translateTo={translateTo}
-          onTranslateFromChange={setTranslateFrom}
-          onTranslateToChange={setTranslateTo}
-          onSubmit={handleTranslationSubmit}
+          selectedFile={selectedFile}
+          handleFileChange={handleFileChange}
+          handleSubmit={handleTranscriptionSubmit}
         />
-      )}
+        {mediaUrl && subtitleUrl && (
+          <MediaPlayer mediaUrl={mediaUrl} subtitleUrl={subtitleUrl} />
+        )}
+        {vttFilename && (
+          <div className="mt-4 max-w-md mx-auto">
+            <DownloadButton filename={vttFilename} label="Download VTT" />
+          </div>
+        )}
+      </div>
+      {/* RIGHT COLUMN */}
+      <AnimatePresence>
+        {subtitleUrl && (
+          <motion.div
+            className="w-full md:w-1/2 max-w-md mx-auto p-6 bg-lime-500/80 rounded-lg shadow-md"
+            initial={{ opacity: 0, x: 100 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: 100 }}
+            transition={{ duration: 0.5 }}
+          >
+            {subtitleUrl && (
+              <TranslationForm
+                isLoading={isLoading}
+                translateFrom={translateFrom}
+                translateTo={translateTo}
+                onTranslateFromChange={setTranslateFrom}
+                onTranslateToChange={setTranslateTo}
+                onSubmit={handleTranslationSubmit}
+              />
+            )}
+            {mediaUrl && translatedSubtitleUrl && (
+              <MediaPlayer mediaUrl={mediaUrl} subtitleUrl={translatedSubtitleUrl} />
+            )}
+            {translatedVttFilename && (
+              <div className="mt-4 max-w-md mx-auto">
+                <DownloadButton filename={translatedVttFilename} label="Download Translated VTT" />
+              </div>
+            )}
+          </motion.div>
+        )}
 
-      {translatedVttFilename && (
-        <div className="mt-4 max-w-md mx-auto">
-          <DownloadButton filename={translatedVttFilename} label="Download Translated VTT" />
-        </div>
-      )}
+        
+      </AnimatePresence>
     </div>
+    
   );
 };
 

@@ -14,7 +14,7 @@ export const TranslationForm: React.FC<TranslationFormProps> = ({
 }) => (
   <div className="w-full max-w-md mx-auto p-6 bg-white rounded-lg shadow-md">
     <h2 className="text-2xl font-bold mb-4">Subtitle Translation</h2>
-    <div className="flex flex-row gap-4">
+    <div className="flex flex-row flex-wrap gap-4">
       <LanguageSelectionForm
         label="Translate From:"
         detect={true}

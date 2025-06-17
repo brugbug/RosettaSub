@@ -119,7 +119,7 @@ const MediaPlayer: React.FC<MediaPlayerProps> = ({ mediaUrl, subtitleUrl, backgr
 
   return (
     // <div className="w-full max-w-md mx-auto p-6 bg-white rounded-lg shadow-md">
-      <div className="w-full mt-6 rounded-lg overflow-hidden bg-gray-100 shadow">
+      <div className="w-full mt-6 p-6 pl-2 rounded-lg overflow-hidden bg-gray-100 shadow">
         <h3 className="text-lg font-semibold px-4 py-2 bg-blue-50">
           Media Preview with Subtitles
         </h3>
@@ -193,7 +193,7 @@ const MediaPlayer: React.FC<MediaPlayerProps> = ({ mediaUrl, subtitleUrl, backgr
 
           {/* Subtitle Display for Audio (can also show for video as backup) */}
           {isAudio && currentSubtitle && (
-            <div className="mt-2 p-3 bg-gray-50 rounded border-l-4 border-blue-500">
+            <div className="mt-2 p-3 bg-gray-50 rounded border-l-4 border-amber-500">
               <p className="text-gray-800 text-center font-medium">
                 {currentSubtitle}
               </p>

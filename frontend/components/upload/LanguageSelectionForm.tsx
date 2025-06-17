@@ -120,7 +120,7 @@ export function LanguageSelectionForm({
                       variant="outline"
                       role="combobox"
                       className={cn(
-                        "w-[200px] justify-between",
+                        "w-[165px] justify-between",
                         !field.value && "text-muted-foreground"
                       )}
                     >
