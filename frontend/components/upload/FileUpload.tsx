@@ -28,12 +28,15 @@ const FileUpload: React.FC = () => {
   if (mediaUrl) console.log('Media URL:', mediaUrl);
   if (subtitleUrl) console.log('Subtitle URL:', subtitleUrl);
   if (translatedSubtitleUrl) console.log('Translated Subtitle URL:', translatedSubtitleUrl);
+  if (translateTo) console.log('Translate To:', translateTo);
+  if (translateFrom) console.log('Translate From:', translateFrom);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {  // event handler for file input
     const files = event.target.files;
     if (files && files.length > 0) {
       setSelectedFile(files[0]);
     }
+    setTranslatedVttFilename(null); // Reset translatedVttFilename when a new file is selected
   };
 
   const handleTranscriptionSubmit = async (event: React.FormEvent) => {  // event handler for form submission

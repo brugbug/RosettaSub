@@ -158,9 +158,6 @@ async def translate_subtitles(
 
     # Translate the media file from source language (if provided) to target language
     try:
-        if source_language is None:
-            source_language = "auto"  # Default to auto-detect if not provided
-
         translated_vtt_file_path = process_vtt_file(file_path, source_language, target_language)
         translated_vtt_filename = os.path.basename(translated_vtt_file_path)
 
