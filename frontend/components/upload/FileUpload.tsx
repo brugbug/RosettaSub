@@ -6,14 +6,22 @@ import MediaPlayer from '../player/MediaPlayer';
 import { UploadForm } from './UploadForm';
 import { TranslationForm } from './TranslationForm';
 import { DownloadButton } from './DownloadButton';
+import { SubtitleSelectionForm } from './SubtitleSelectionForm';
+import { LANGUAGE_CODE_TO_NAME } from '@/lib/constants/languageMap';
+
+type VttFile = {
+  language: string;
+  filename: string;
+}
 
 // FileUpload.tsx, is a React Functional Component that allows users to upload audio files (MP3 or WAV) for transcription
 const FileUpload: React.FC = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [mediaFilename, setMediaFilename] = useState<string | null>(null);
-  const [vttFilename, setVttFilename] = useState<string | null>(null);
-  const [translatedVttFilename, setTranslatedVttFilename] = useState<string | null>(null);
+  const [vttFiles, setVttFiles] = useState<VttFile[]>([]);
+  const [originalVttFilename, setOriginalVttFilename] = useState<string | null>(null);
+  const [selectedVttFilename, setSelectedVttFilename] = useState<string | null>(null);
   const [translateFrom, setTranslateFrom] = useState<string>('detect');
   const [translateTo, setTranslateTo] = useState<string>('');
   
@@ -23,11 +31,9 @@ const FileUpload: React.FC = () => {
 
   // Generate the URLs for the media file and subtitles
   const mediaUrl = mediaFilename ? `${process.env.NEXT_PUBLIC_API_URL}/media/${mediaFilename}` : null;
-  const subtitleUrl = vttFilename ? `${process.env.NEXT_PUBLIC_API_URL}/download/${vttFilename}` : null;
-  const translatedSubtitleUrl = translatedVttFilename ? `${process.env.NEXT_PUBLIC_API_URL}/download/${translatedVttFilename}` : null;
+  const subtitleUrl = selectedVttFilename ? `${process.env.NEXT_PUBLIC_API_URL}/download/${selectedVttFilename}` : null;
   if (mediaUrl) console.log('Media URL:', mediaUrl);
   if (subtitleUrl) console.log('Subtitle URL:', subtitleUrl);
-  if (translatedSubtitleUrl) console.log('Translated Subtitle URL:', translatedSubtitleUrl);
   if (translateTo) console.log('Translate To:', translateTo);
   if (translateFrom) console.log('Translate From:', translateFrom);
 
@@ -36,7 +42,6 @@ const FileUpload: React.FC = () => {
     if (files && files.length > 0) {
       setSelectedFile(files[0]);
     }
-    setTranslatedVttFilename(null); // Reset translatedVttFilename when a new file is selected
   };
 
   const handleTranscriptionSubmit = async (event: React.FormEvent) => {  // event handler for form submission
@@ -58,6 +63,12 @@ const FileUpload: React.FC = () => {
     
     // Make a post request to /transcribe API with the selected file
     try {
+      // TEMPORARY(?): Clear the uploads directory before uploading a new file
+      await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/clear-uploads/`); 
+      console.log('Cleared uploads directory');
+
+      setVttFiles([]); // Reset vttFiles before uploading a new file
+
       const formData = new FormData();
       formData.append('file', selectedFile);
       
@@ -74,9 +85,12 @@ const FileUpload: React.FC = () => {
       // Handle the returned subtitles
       toast.success('File uploaded successfully!');
       setMediaFilename(response.data.media_filename);
-      setVttFilename(response.data.vtt_filename);
+      setVttFiles([{ language: 'Original', filename: response.data.vtt_filename }]);
+      setOriginalVttFilename(response.data.vtt_filename);
+      setSelectedVttFilename(response.data.vtt_filename);
+      
       console.log('Response:', response.data, 
-        '\nVTT Filename:', vttFilename, 
+        '\nVTT Filename:', originalVttFilename, 
         '\nMedia Filename:', mediaFilename);
 
     } catch (error) {
@@ -89,14 +103,13 @@ const FileUpload: React.FC = () => {
 
   const handleTranslationSubmit = async (event: React.FormEvent) => { // event handler for translation submission
     event.preventDefault();
-    setTranslatedVttFilename(null); // reset translatedVttFilename before translation
     
     // Make a post request to /transcribe API with the selected file
     try {
       const formData = new FormData();
       formData.append('source_language', translateFrom);
       formData.append('target_language', translateTo);
-      formData.append('filename', vttFilename || '');
+      formData.append('filename', originalVttFilename || '');
 
       setIsLoading(true);
 
@@ -111,12 +124,17 @@ const FileUpload: React.FC = () => {
       );
       
       // Handle the returned subtitles
+      const newVttFile = { language: LANGUAGE_CODE_TO_NAME[translateTo], filename: response.data.translated_vtt_filename };
+      setVttFiles(prev => {
+        const updated = [...prev, newVttFile];
+        setSelectedVttFilename(response.data.translated_vtt_filename); // set the selected filename after the vttFiles state has been updated
+        return updated;
+      });
+
       toast.success('File translated successfully!');
-      setTranslatedVttFilename(response.data.translated_vtt_filename);
       console.log('Response:', response.data, 
-        '\nVTT Filename:', vttFilename, 
-        '\nTranslated VTT Filename:', translatedVttFilename,
-        '\nLink:', translatedSubtitleUrl
+        '\nVTT Filename:', originalVttFilename, 
+        '\nTranslated VTT Filename:', vttFiles[vttFiles.length - 1]?.filename
       );
 
     } catch (error) {
@@ -140,18 +158,18 @@ const FileUpload: React.FC = () => {
           handleFileChange={handleFileChange}
           handleSubmit={handleTranscriptionSubmit}
         />
-        {mediaUrl && subtitleUrl && (
+        {mediaUrl && vttFiles.length && (
           <MediaPlayer mediaUrl={mediaUrl} subtitleUrl={subtitleUrl} />
         )}
-        {vttFilename && (
+        {selectedVttFilename && (
           <div className="mt-4 max-w-md mx-auto">
-            <DownloadButton filename={vttFilename} label="Download VTT" />
+            <DownloadButton filename={selectedVttFilename} label="Download VTT" />
           </div>
         )}
       </div>
       {/* RIGHT COLUMN */}
       <AnimatePresence>
-        {subtitleUrl && (
+        {vttFiles.length && (
           <motion.div
             className="w-full md:w-1/2 max-w-md mx-auto p-6 bg-lime-500/80 rounded-lg shadow-md"
             initial={{ opacity: 0, x: 100 }}
@@ -159,7 +177,7 @@ const FileUpload: React.FC = () => {
             exit={{ opacity: 0, x: 100 }}
             transition={{ duration: 0.5 }}
           >
-            {subtitleUrl && (
+            {vttFiles.length && (
               <TranslationForm
                 isLoading={isLoading}
                 translateFrom={translateFrom}
@@ -169,14 +187,21 @@ const FileUpload: React.FC = () => {
                 onSubmit={handleTranslationSubmit}
               />
             )}
-            {mediaUrl && translatedSubtitleUrl && (
+            {/* {mediaUrl && translatedSubtitleUrl && (
               <MediaPlayer mediaUrl={mediaUrl} subtitleUrl={translatedSubtitleUrl} />
+            )} */
+            vttFiles.length && (
+              <SubtitleSelectionForm
+                vttFiles={vttFiles}
+                selectedVttFilename={selectedVttFilename}
+                onVttFilenameChange={setSelectedVttFilename}
+              />
             )}
-            {translatedVttFilename && (
+            {/* {translatedVttFilename && (
               <div className="mt-4 max-w-md mx-auto">
                 <DownloadButton filename={translatedVttFilename} label="Download Translated VTT" />
               </div>
-            )}
+            )} */}
           </motion.div>
         )}
 

@@ -150,19 +150,19 @@ const FormSchema = z.object({
   }),
 })
 
-interface LanguageSelectionFormProps {
+interface LanguageDropdownProps {
   label: string
   value: string
   onValueChange: (value: string) => void
   detect?: boolean
 }
 
-export function LanguageSelectionForm({ 
+export function LanguageDropdown({ 
   label, 
   value, 
   onValueChange, 
   detect = false 
-}: LanguageSelectionFormProps) {
+}: LanguageDropdownProps) {
   const availableOptions = detect ? [detectLanguageOption, ...languages] : languages
   const defaultValue = (detect && !value) ? "detect" : value
 

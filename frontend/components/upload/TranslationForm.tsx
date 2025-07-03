@@ -1,4 +1,4 @@
-import { LanguageSelectionForm } from './LanguageSelectionForm';
+import { LanguageDropdown } from './LanguageDropdown';
 
 interface TranslationFormProps {
   isLoading: boolean;
@@ -10,18 +10,23 @@ interface TranslationFormProps {
 }
 
 export const TranslationForm: React.FC<TranslationFormProps> = ({
-  isLoading, translateFrom, translateTo, onTranslateFromChange, onTranslateToChange, onSubmit
+  isLoading, 
+  translateFrom, 
+  translateTo, 
+  onTranslateFromChange, 
+  onTranslateToChange, 
+  onSubmit
 }) => (
   <div className="w-full max-w-md mx-auto p-6 bg-white rounded-lg shadow-md">
     <h2 className="text-2xl font-bold mb-4">Subtitle Translation</h2>
     <div className="flex flex-row flex-wrap gap-4">
-      <LanguageSelectionForm
+      <LanguageDropdown
         label="Translate From:"
         detect={true}
         value={translateFrom}
         onValueChange={onTranslateFromChange}
       />
-      <LanguageSelectionForm
+      <LanguageDropdown
         label="Translate To:"
         value={translateTo}
         onValueChange={onTranslateToChange}

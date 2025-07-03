@@ -8,6 +8,7 @@ from typing import Optional
 from app.core.config import settings
 from app.services.transcription import process_media_file
 from app.services.translation import process_vtt_file
+from app.services.file_cleanup import clear_uploads_directory
 
 router = APIRouter()    # Create new router instance to be imported in main.py
 
@@ -173,3 +174,18 @@ async def translate_subtitles(
         if file and os.path.exists(file_path):
             os.remove(file_path)
         raise HTTPException(status_code=500, detail=f"Translation error: {str(e)}")
+
+@router.post("/clear-uploads/")   # /api/v1/clear-uploads
+async def clear_uploads_directory():
+    """
+    Endpoint to clear the uploads directory.
+    
+    Returns:
+        JSON with success message
+    """
+    try:
+        # Clear the uploads directory
+        clear_uploads_directory()
+        return {"message": "Uploads directory cleared successfully"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error clearing uploads directory: {str(e)}")
