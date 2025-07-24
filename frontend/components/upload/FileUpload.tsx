@@ -103,9 +103,16 @@ const FileUpload: React.FC = () => {
 
   const handleTranslationSubmit = async (event: React.FormEvent) => { // event handler for translation submission
     event.preventDefault();
-    
     // Make a post request to /transcribe API with the selected file
     try {
+      // Check if VTT file is already translated to the selected language
+      const existingFile = vttFiles.find(file => file.language === LANGUAGE_CODE_TO_NAME[translateTo]);
+      if (existingFile) {
+        toast.info(`File already exists for ${LANGUAGE_CODE_TO_NAME[translateTo]}.`);
+        setSelectedVttFilename(existingFile.filename);
+        return;
+      }
+
       const formData = new FormData();
       formData.append('source_language', translateFrom);
       formData.append('target_language', translateTo);

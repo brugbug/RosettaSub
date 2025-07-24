@@ -136,7 +136,7 @@ def get_vtt_string(vtt_path: str) -> str:
 
     return vtt_text
 
-def create_vtt_from_translated_string(vtt_string: str, old_vtt_path: str) -> str:
+def create_vtt_from_translated_string(vtt_string: str, old_vtt_path: str, target_language: str) -> str:
     """
     Create a VTT file from a string.
 
@@ -146,7 +146,7 @@ def create_vtt_from_translated_string(vtt_string: str, old_vtt_path: str) -> str
     Returns:
         Path to the created VTT file
     """
-    translated_vtt_path = Path(old_vtt_path).with_suffix(".translated.vtt")
+    translated_vtt_path = Path(old_vtt_path).with_suffix(f".{target_language}.translated.vtt")
     try:
         with open(translated_vtt_path, "w", encoding="utf-8") as f:
             f.write(vtt_string)
@@ -224,6 +224,6 @@ def process_vtt_file(vtt_path: str, source_language: str, target_language: str) 
     )
     print(f"\nResponse from Gemini: {response.text[:100]}...")  # Print first 100 characters for debugging
 
-    translated_vtt_path = create_vtt_from_translated_string(response.text, vtt_path)
+    translated_vtt_path = create_vtt_from_translated_string(response.text, vtt_path, target_language)
 
     return translated_vtt_path
