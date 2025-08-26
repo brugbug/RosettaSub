@@ -4,6 +4,35 @@ A web app for AI-powered audio playback, subtitle translation, and transcription
 
 ---
 
+## ⚙️ Setting Up the Project Locally
+
+### 1. Open your CLI of choice and clone the repo
+
+git clone https://github.com/brugbug/RosettaSub.git
+
+### 2. Download Docker Desktop
+
+You can download it at: https://www.docker.com/products/docker-desktop/
+
+### 3. Navigate to the RosettaSub folder
+
+cd /path/to/your/project/RosettaSub
+
+### 4. Build the Docker containers
+
+docker-compose up -d
+
+### 5. Set your Google Gemini API key at /path/to/your/project/RosettaSub/backend/.env
+
+You can generate an API key at https://aistudio.google.com/app/apikey
+
+### *If you ever needed to rebuild the project for whatever reason
+
+docker-compose down --volumes
+docker-compose up -d --build
+
+---
+
 ## 🚀 Features
 
 - ✅ Play audio files with synchronized `.vtt` subtitles
@@ -16,7 +45,7 @@ A web app for AI-powered audio playback, subtitle translation, and transcription
 
 ## 📸 Demo
 
-> _Add a link or screenshot here once ready!_
+> Add a link or screenshot here once ready! 
 
 ---
 
@@ -32,16 +61,4 @@ A web app for AI-powered audio playback, subtitle translation, and transcription
 
 ---
 
-## ⚙️ Running Locally
 
-### 1. Clone the repo
-
-https://github.com/brugbug/RosettaSub.git
-
-
-# To start up the docker containers
-docker-compose up -d
-# To rebuild from scratch
-docker-compose down --volumes
-
-docker-compose up -d --build
