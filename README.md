@@ -14,17 +14,31 @@ git clone https://github.com/brugbug/RosettaSub.git
 
 You can download it at: https://www.docker.com/products/docker-desktop/
 
-### 3. Navigate to the RosettaSub folder
+### 3. Navigate to the RosettaSub/backend folder and set .env file
 
-cd /path/to/your/project/RosettaSub
+cd /path/to/your/project/RosettaSub/backend
 
-### 4. Build the Docker containers
+Needed for API keys and other secrets
+You can just copy this and set the GEMINI_API_KEY (not using OpenAI yet)
+```
+# API Keys
+OPENAI_API_KEY=your_openai_api_key_here
+GEMINI_API_KEY=your_gemini_api_key_here
 
-docker-compose up -d
+# Database <<TBD>>
+DATABASE_URL=postgresql://postgres:password@localhost:5432/subtitle_generator
 
-### 5. Set your Google Gemini API key at /path/to/your/project/RosettaSub/backend/.env
+# Environment
+ENVIRONMENT=development
+```
 
 You can generate an API key at https://aistudio.google.com/app/apikey
+
+### 4. Navigate to RosettaSub folder and build the Docker containers
+
+cd ..
+
+docker-compose up -d
 
 ### *If you ever needed to rebuild the project for whatever reason
 
