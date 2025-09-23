@@ -2,9 +2,8 @@
 
 import FileUpload from '@/components/upload/FileUpload';
 import { Navbar1 } from '@/components/layout/NavigationBar';
-import { Button } from "@/components/ui/button";
 
-export default function Home() {
+export default function TranscribePage() {
   return (
     <main className="">
       <Navbar1 />
@@ -13,13 +12,9 @@ export default function Home() {
           <div className="w-full">
             <h1 className="text-4xl font-bold mb-4 text-center text-white">RosettaSub</h1>
             <p className="text-lg mb-16 text-center text-white">
-              Understand any audio or video content with ease. Upload your files to automatically generate and translate subtitles. 
+              Upload audio or video files to automatically generate and translate subtitles.
             </p>
-            <a href="/transcribe">
-              <Button variant="outline">
-                Start Transcribing
-              </Button>
-            </a>
+            <FileUpload />
           </div>
         </div>
       </div>

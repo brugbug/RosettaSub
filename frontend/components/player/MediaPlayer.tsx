@@ -40,7 +40,9 @@ const MediaPlayer: React.FC<MediaPlayerProps> = ({ mediaUrl, subtitleUrl, backgr
         i++;
         let text = '';
         while (i < lines.length && lines[i].trim() !== '') {
-          if (text) text += ' ';
+          if (text) {
+            text += ' ';
+          }
           text += lines[i].trim();
           i++;
         }
