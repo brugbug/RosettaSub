@@ -65,12 +65,6 @@ const Navbar1 = ({
       icon: <Captions className="size-5 shrink-0" />,
       url: "/transcribe" 
     },
-    { 
-      title: "Translate", 
-      description: "Translate subtitles to enjoy your content in any language",
-      icon: <Languages className="size-5 shrink-0" />,
-      url: "/translate" 
-    },
     {
       title: "Resources",
       url: "#",
@@ -82,16 +76,16 @@ const Navbar1 = ({
           url: "/about",
         },
         {
-          title: "GitHub",
-          description: "Explore the RosettaSub GitHub repository",
-          icon: <Github className="size-5 shrink-0" />,
-          url: "https://github.com/brugbug/RosettaSub",
-        },
-        {
           title: "Terms of Service",
           description: "Our terms and conditions for using our services",
           icon: <FileText className="size-5 shrink-0" />,
           url: "/terms",
+        },
+        {
+          title: "GitHub",
+          description: "Explore the RosettaSub GitHub repository",
+          icon: <Github className="size-5 shrink-0" />,
+          url: "https://github.com/brugbug/RosettaSub",
         },
       ],
     },
@@ -142,7 +136,7 @@ const Navbar1 = ({
             {/* Logo */}
             <a href={logo.url} className="flex items-center gap-2">
               <img src={logo.src} className="max-h-8" alt={logo.alt} />
-              <span className="text-lg font-semibold tracking-tighter">
+              <span className="text-2xl font-bold tracking-tighter">
                 {logo.title}
               </span>
             </a>
