@@ -54,7 +54,7 @@ interface Navbar1Props {
 const Navbar1 = ({
   logo = {
     url: "http://localhost:3000",
-    src: "/vercel.svg",
+    src: "/rslogo.png",
     alt: "logo",
     title: "RosettaSub",
   },
@@ -213,9 +213,9 @@ const renderMenuItem = (item: MenuItem) => {
     return (
       <NavigationMenuItem key={item.title}>
         <NavigationMenuTrigger>{item.title}</NavigationMenuTrigger>
-        <NavigationMenuContent className="bg-popover text-popover-foreground">
+        <NavigationMenuContent className="w-[400px] bg-popover text-popover-foreground">
           {item.items.map((subItem) => (
-            <NavigationMenuLink asChild key={subItem.title} className="w-80">
+            <NavigationMenuLink asChild key={subItem.title} className="w-full">
               <SubMenuLink item={subItem} />
             </NavigationMenuLink>
           ))}
