@@ -31,7 +31,7 @@ interface MenuItem {
   items?: MenuItem[];
 }
 
-interface Navbar1Props {
+interface NavbarProps {
   logo?: {
     url: string;
     src: string;
@@ -51,7 +51,7 @@ interface Navbar1Props {
   };
 }
 
-const Navbar1 = ({
+const Navbar = ({
   logo = {
     url: "http://localhost:3000",
     src: "/rslogo.png",
@@ -125,10 +125,10 @@ const Navbar1 = ({
     login: { title: "Login", url: "#" },
     signup: { title: "Sign up", url: "#" },
   },
-}: Navbar1Props) => {
+}: NavbarProps) => {
   return (
-    <section className="py-4">
-      <div className="mx-auto px-6"> {/** max-w-[1440px] to limit the width */}
+    <section className="sticky top-0 z-50 bg-white">
+      <div className="mx-auto px-6 py-4"> {/** max-w-[1440px] to limit the width */}
         {/* Desktop Menu */}
         <nav className="hidden lg:flex items-center">
           {/* Left side */}
@@ -136,7 +136,7 @@ const Navbar1 = ({
             {/* Logo */}
             <a href={logo.url} className="flex items-center gap-2">
               <img src={logo.src} className="max-h-8" alt={logo.alt} />
-              <span className="text-2xl font-bold tracking-tighter">
+              <span className="ml-2 text-2xl font-bold tracking-tighter">
                 {logo.title}
               </span>
             </a>
@@ -278,4 +278,4 @@ const SubMenuLink = ({ item }: { item: MenuItem }) => {
   );
 };
 
-export { Navbar1 };
+export { Navbar };

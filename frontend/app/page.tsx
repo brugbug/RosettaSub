@@ -1,13 +1,13 @@
 "use client";
 
 import FileUpload from '@/components/upload/FileUpload';
-import { Navbar1 } from '@/components/layout/NavigationBar';
+import { Navbar } from '@/components/layout/NavigationBar';
 import { Button } from "@/components/ui/button";
 
 export default function Home() {
   return (
     <main className="">
-      <Navbar1 />
+      <Navbar />
       <div className="flex min-h-screen flex-col items-center p-8 md:p-12 lg:p-24 bg-neutral-900">
         <div className="z-10 w-full max-w-5xl items-center justify-between font-mono text-sm">
           <div className="w-full">
