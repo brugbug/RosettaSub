@@ -65,6 +65,12 @@ const Navbar = ({
       icon: <Captions className="size-5 shrink-0" />,
       url: "/transcribe" 
     },
+    { 
+      title: "Translate", 
+      description: "Translate vtt subtitle files into different languages",
+      icon: <Captions className="size-5 shrink-0" />,
+      url: "/translate" 
+    },
     {
       title: "Resources",
       url: "#",
